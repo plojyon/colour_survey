@@ -1,2 +1,2 @@
-# colour_alphabet
-Anketa kere barve je kera crka
+# colour_survey
+Anketa kere barve je kera stevilka
