@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+	<title>Colour analysis</title>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="index.css"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link href="https://fonts.googleapis.com/css?family=Indie+Flower|Roboto" rel="stylesheet">
+	<script src="jscolor.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<noscript><meta http-equiv="refresh" content="0; url=https://www.whatismybrowser.com/guides/how-to-enable-javascript/auto"></noscript>
+</head>
+<body>
+	<!-- Hello, adventurer! -->
+	<section id="main">
+		<span class="digits" id="one">
+			<input type="hidden" id="one_val" value="FFFFFF">
+			<button class="jscolor {valueElement:'one_val', value: 'FFF', mode: 'HVS', closable:true, closeText:'Close'}">1</button>
+		</span>
+		<span class="digits" id="two">
+			<input type="hidden" id="two_val" value="FFFFFF">
+			<button class="jscolor {valueElement:'two_val', value: 'FFF', mode: 'HVS', closable:true, closeText:'Close'}">2</button>
+		</span>
+		<span class="digits" id="three">
+			<input type="hidden" id="three_val" value="FFFFFF">
+			<button class="jscolor {valueElement:'three_val', value: 'FFF', mode: 'HVS', closable:true, closeText:'Close'}">3</button>
+		</span>
+		<span class="digits" id="four">
+			<input type="hidden" id="four_val" value="FFFFFF">
+			<button class="jscolor {valueElement:'four_val', value: 'FFF', mode: 'HVS', closable:true, closeText:'Close'}">4</button>
+		</span>
+		<span class="digits" id="five">
+			<input type="hidden" id="five_val" value="FFFFFF">
+			<button class="jscolor {valueElement:'five_val', value: 'FFF', mode: 'HVS', closable:true, closeText:'Close'}">5</button>
+		</span>
+		<span class="digits" id="six">
+			<input type="hidden" id="six_val" value="FFFFFF">
+			<button class="jscolor {valueElement:'six_val', value: 'FFF', mode: 'HVS', closable:true, closeText:'Close'}">6</button>
+		</span>
+		<span class="digits" id="seven">
+			<input type="hidden" id="seven_val" value="FFFFFF">
+			<button class="jscolor {valueElement:'seven_val', value: 'FFF', mode: 'HVS', closable:true, closeText:'Close'}">7</button>
+		</span>
+		<span class="digits" id="eight">
+			<input type="hidden" id="eight_val" value="FFFFFF">
+			<button class="jscolor {valueElement:'eight_val', value: 'FFF', mode: 'HVS', closable:true, closeText:'Close'}">8</button>
+		</span>
+		<span class="digits" id="nine">
+			<input type="hidden" id="nine_val" value="FFFFFF">
+			<button class="jscolor {valueElement:'nine_val', value: 'FFF', mode: 'HVS', closable:true, closeText:'Close'}">9</button>
+		</span>
+		<span class="digits" id="zero">
+			<input type="hidden" id="zero_val" value="FFFFFF">
+			<button class="jscolor {valueElement:'zero_val', value: 'FFF', mode: 'HVS', closable:true, closeText:'Close'}">0</button>
+		</span>
+		<button onclick="send()">Submit</button>
+	</section>
+	<style>
+		body {
+			font-family: "Roboto";
+			font-size: 72px;
+			padding: 0;
+			margin: 16px;
+		}
+		span.digits {
+			background-color: white;
+			margin: 0;
+			margin-bottom: 10px;
+		}
+		button.jscolor {
+			background-color: transparent;
+			color: black;
+			font-family: "Roboto";
+			font-size: 72px;
+			border: 1px solid black;
+		}
+	</style>
+	<script>
+		function send() {
+			console.log("sending");
+			var message = '{' +
+				'"one": ' + $('#one_val')[0].value + ',' +
+				'"two": ' + $('#two_val')[0].value + ',' +
+				'"three": ' + $('#three_val')[0].value + ',' +
+				'"four": ' + $('#four_val')[0].value + ',' +
+				'"five": ' + $('#five_val')[0].value + ',' +
+				'"six": ' + $('#six_val')[0].value + ',' +
+				'"seven": ' + $('#seven_val')[0].value + ',' +
+				'"eight": ' + $('#eight_val')[0].value + ',' +
+				'"nine": ' + $('#nine_val')[0].value + ',' +
+				'"zero": ' + $('#zero_val')[0].value + '}';
+			var channel = "https://discordapp.com/api/webhooks/543840354470723604/2hZAz25p4Zl_bcEOxjdQvkhBGm7W65GlXXww_6zQhd5HLDjGx7o42ogKmmKoljYoT03n"
+			var params = { "content": message, "username": "Survey submission" };
+			$.post(channel, params, function (data) {}, "json");
+		}
+	</script>
+</body>
+</html>
