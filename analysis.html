@@ -57,7 +57,32 @@
 			$('#main')[0].appendChild(submission);
 		}
 
+		function getR(c) {
+			return parseInt(c.substring(0,3), 16);
+		}
+		function getG(c) {
+			return parseInt(c.substring(3, 5), 16);
+		}
+		function getB(c) {
+			return parseInt(c.substring(5), 16);
+		}
 
+		var osnovne_barve = ["4DBEFF","FFF94D","67FF4D","FF2B2B","FF2BE6","5D2BFF","1F917A"];
+
+		function similarTo(original) {
+			var deviations = []
+			for (var i = 0; i < osnovne_barve.length; i++) {
+				deviations[i] = Math.abs(getR(original)-getR(osnovne_barve))
+							+ Math.abs(getG(original)-getG(osnovne_barve))
+							+ Math.abs(getB(original)-getB(osnovne_barve));
+			}
+
+			var min = 0;
+			for (var i = 0; i < osnovne_barve.length; i++) {
+				if (deviations[i] < deviations[min]) min = i;
+			}
+			return min;
+		}
 
 		var eng_to_int = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven":7, "eight": 8, "nine": 9, "zero": 0};
 		var int_to_eng = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
@@ -74,6 +99,7 @@
 			["Masa 2", {"one": "0013AB","two": "5BFF00","three": "FFF900","four": "E03C00","five": "FFB9F3","six": "7C31D5","seven": "76CFDA","eight": "002F9B","nine": "5764EB","zero": "DDFCFA"}]
 		];
 
+
 		/* generate submissions */
 		for (var i = 0; i < data.length; i++) {
 			addSet(data[i][1], data[i][0]);
@@ -88,9 +114,9 @@
 			var sumG = 0;
 			var sumB = 0;
 			for (var j = 0; j < data.length; j++) {
-				sumR += parseInt(data[j][1][int_to_eng[i]].substring(0,3), 16);
-				sumG += parseInt(data[j][1][int_to_eng[i]].substring(3,5), 16);
-				sumB += parseInt(data[j][1][int_to_eng[i]].substring(5), 16);
+				sumR += getR(data[j][1][int_to_eng[i]]);
+				sumG += getG(data[j][1][int_to_eng[i]]);
+				sumB += getB(data[j][1][int_to_eng[i]]);
 			}
 			avgR = Math.round(sumR / data.length);
 			avgB = Math.round(sumB / data.length);
