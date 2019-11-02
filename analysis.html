@@ -14,7 +14,7 @@
 <body>
 	<!-- Hello, adventurer! -->
 	<section id="main">
-		<p id="disclaimer">Submissions are ordered chronologically.</p>
+		<p id="disclaimer">Submissions are not ordered chronologically.</p>
 	</section>
 	<style>
 		#disclaimer{
@@ -37,6 +37,68 @@
 		}
 	</style>
 	<script>
+		class Colour {
+			constructor(hexString) {
+				if (!hexString) hexString = "000000"
+				if (hexString.substring(0, 1) == "#") hexString = hexString.substring(1);
+				if (hexString.length != 6) hexString = "FFFFFF";
+				this.r = parseInt(hexString.substring(0, 2), 16);
+				this.g = parseInt(hexString.substring(2, 4), 16);
+				this.b = parseInt(hexString.substring(4), 16);
+			}
+			setRGB(r, g, b) {
+				this.r = r;
+				this.g = g;
+				this.b = b;
+				return this;
+			}
+			scale(factor) {
+				this.r = Math.round(this.r*factor);
+				this.g = Math.round(this.g*factor);
+				this.b = Math.round(this.b*factor);
+				return this;
+			}
+			hex() {
+				var r = this.r % 256;
+				var g = this.g % 256;
+				var b = this.b % 256;
+				if (rgb_to_hex(r, g, g).length != 6) console.log("Warning! Hex string is of invalid length!");
+				return rgb_to_hex(r, g, b);
+			}
+			getH() { return this.hsl()[0]; }
+			getS() { return this.hsl()[1]; }
+			getL() { return this.hsl()[2]; }
+
+			hsl() {
+				var r = this.r%256;
+				var g = this.g%256;
+				var b = this.b%256;
+				// normalise components to range [0, 1]
+				r /= 255;
+				g /= 255;
+				b /= 255;
+
+				var max = Math.max(r, g, b), min = Math.min(r, g, b);
+				var h, s, l = (max + min) / 2;
+
+				if (max == min) {
+					h = s = 0; // achromatic
+				} else {
+					var d = max - min;
+					s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+
+					switch (max) {
+						case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+						case g: h = (b - r) / d + 2; break;
+						case b: h = (r - g) / d + 4; break;
+					}
+
+					h /= 6;
+				}
+				return [ h*360, s, l ];
+			}
+		}
+
 		function addSet(colours, label) {
 			var submission = document.createElement("div");
 			submission.classList.add("submission");
@@ -45,7 +107,7 @@
 				var e = document.createElement("span");
 				e.classList.add("digits");
 				e.innerHTML = i;
-				e.style.backgroundColor = '#' + colours[int_to_eng[i]];
+				e.style.backgroundColor = '#' + colours[i].hex();
 				submission.appendChild(e);
 			}
 
@@ -57,59 +119,27 @@
 			$('#main')[0].appendChild(submission);
 		}
 
-		function getR(c) {
-			return parseInt(c.substring(0,3), 16);
+
+		function rgb_to_hex(r, g, b) {
+			r = (r%256).toString(16);
+			g = (g%256).toString(16);
+			b = (b%256).toString(16);
+			if (r.length == 1) r = "0"+r;
+			if (g.length == 1) g = "0"+g;
+			if (b.length == 1) b = "0"+b;
+			return (r+g+b).toUpperCase();
 		}
-		function getG(c) {
-			return parseInt(c.substring(3, 5), 16);
+		function composeHSL(h, s, l) {
+			c = rgb(h, s, l);
+			rgb_to_hex(c[0], c[1], c[2]);
 		}
-		function getB(c) {
-			return parseInt(c.substring(5), 16);
-		}
-		function compose(r, g, b) {
-			return (r.toString(16)+g.toString(16)+b.toString(16)).toUpperCase();
-		}
-		function getH(c) {
-			return hsl([getR(c), getG(c), getB(c)])[0];
-		}
-		function getS(c) {
-			return hsl([getR(c), getG(c), getB(c)])[1];
-		}
-		function getL(c) {
-			return hsl([getR(c), getG(c), getB(c)])[2];
+		function sumRGB(c1, c2) {
+			// sums components of two colours in RGB
+			return new Colour().setRGB(c1.r+c2.r, c1.g+c2.g, c1.b+c2.b);
 		}
 
-		function hsl(c) {
-			var r = c[0];
-			var g = c[1];
-			var b = c[2];
-			r /= 255;
-			g /= 255;
-			b /= 255;
-
-			var max = Math.max(r, g, b), min = Math.min(r, g, b);
-			var h, s, l = (max + min) / 2;
-
-			if (max == min) {
-				h = s = 0; // achromatic
-			} else {
-				var d = max - min;
-				s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-
-				switch (max) {
-					case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-					case g: h = (b - r) / d + 2; break;
-					case b: h = (r - g) / d + 4; break;
-				}
-
-				h /= 6;
-			}
-			return [ h*360, s, l ];
-		}
-		function rgb(c) {
-			var h = c[0]/360;
-			var s = c[1];
-			var l = c[2];
+		function rgb(h, s, l) {
+			h = h/360;
 
 			var r, g, b;
 
@@ -136,84 +166,122 @@
 			return [ r * 255, g * 255, b * 255 ];
 		}
 
+		function distanceRGB(c1, c2) {
+			// calculate distance between two colours in rgb space
+			var deltaR = c1.r - c2.r;
+			var deltaG = c1.g - c2.g;
+			var deltaB = c1.b - c2.b;
+			var d = Math.sqrt(Math.pow(deltaR, 2), Math.pow(deltaG, 2), Math.pow(deltaB, 2));
 
-
-		var osnovne_barve = ["EBFBFC", "CFFBFF", "4DBEFF","FFF94D","67FF4D","FF2B2B","FF2BE6","5D2BFF","1F917A", "000000", "FFFFFF"];
-/*
-		function similarTo(original) {
-			var resolution = 5; // 3*(256 / res +1) different colours [3=RGB, 256=max-col, +1=edge-case]
-			var res = 1<<resolution; // has to be a power of 2
-
-			var sector_width = 256/res;
-			var halfsector_width = sector_width/2;
-
-			for (var i = 0; i < osnovne_barve.length; i++) {
-				[
-					Math.floor(getR(original) / res),
-					Math.abs(getG(original)-getG(osnovne_barve[i])),
-					Math.abs(getB(original)-getB(osnovne_barve[i]))
-				]
-			}
-
-			var min = 0;
-			for (var i = 0; i < osnovne_barve.length; i++) {
-				if (deviations[i] < deviations[min]) min = i;
-				console.log("deviations[i]: "+deviations[i]+" deviations[min]: "+deviations[min])
-			}
-			return min;
+			return d;
 		}
-		console.log(similarTo("F0F8FF"));*/
 
-		var eng_to_int = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven":7, "eight": 8, "nine": 9, "zero": 0};
-		var int_to_eng = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
+		function eng_to_int(str) {
+			var arr = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven":7, "eight": 8, "nine": 9, "zero": 0};
+			return arr[str];
+		}
+		function int_to_eng(i) {
+			var arr = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
+			return arr[i];
+		}
 
-		data = [
-			["Jess 1", {"one": "F0C800","two": "94D400","three": "C20061","four": "804726","five": "F70000","six": "00F0C8","seven": "124F00","eight": "0045AD","nine": "8B00A1","zero": "E0E0E0"}],
-			["Masa 1", {"one": "004E8D","two": "7FC900","three": "F6EE00","four": "D91600","five": "BA0097","six": "70009B","seven": "00EEFF","eight": "002BAF","nine": "0098AC","zero": "00F1F1"}],
-			["Nina", {"one": "AFA500","two": "006934","three": "23009E","four": "A30016","five": "008AB2","six": "523F00","seven": "8F007F","eight": "FF2626","nine": "00DACE","zero": "726F00"}],
+		raw_data = [
+			["Jess",
+				{"one": "F0C800","two": "94D400","three": "C20061","four": "804726","five": "F70000","six": "00F0C8","seven": "124F00","eight": "0045AD","nine": "8B00A1","zero": "E0E0E0"},
+				{"one": "FFE600","two": "12A800","three": "EF00F7","four": "825A00","five": "E30000","six": "008CE6","seven": "C7E600","eight": "0062F0","nine": "8800FF","zero": "B6FAF7"}
+			],
+			["Masa",
+				{"one": "004E8D","two": "7FC900","three": "F6EE00","four": "D91600","five": "BA0097","six": "70009B","seven": "00EEFF","eight": "002BAF","nine": "0098AC","zero": "00F1F1"},
+				{"one": "0013AB","two": "5BFF00","three": "FFF900","four": "E03C00","five": "FFB9F3","six": "7C31D5","seven": "76CFDA","eight": "002F9B","nine": "5764EB","zero": "DDFCFA"}
+			],
+			["Domen",
+				{"one": "000000","two": "00095C","three": "4B7000","four": "FA0000","five": "F5ED00","six": "06A600","seven": "E37900","eight": "00591E","nine": "0000D6","zero": "00F0D8"},
+				{"one": "000000","two": "0E0073","three": "006E05","four": "E70E00","five": "BF8300","six": "005914","seven": "F0FF00","eight": "6A000B","nine": "001AFF","zero": "FFFFFF"}
+			],
+			["Teja",
+				{"one": "26BD00","two": "D98200","three": "FCEB79","four": "FFE2D6","five": "F74A00","six": "EB3D88","seven": "A2FF00","eight": "0000FF","nine": "6600FF","zero": "FFFFFF"},
+				{"one": "2DE000","two": "00D4DB","three": "DE5900","four": "C22700","five": "FF0A0A","six": "FFBDBD","seven": "2CC937","eight": "6000DE","nine": "D65600","zero": "FFFFFF"}
+			],
+			["Nina",
+				{"one": "AFA500","two": "006934","three": "23009E","four": "A30016","five": "008AB2","six": "523F00","seven": "8F007F","eight": "FF2626","nine": "00DACE","zero": "726F00"},
+				{"one": "D800C7","two": "514C52","three": "E03E00","four": "51A8AB","five": "7BF5FF","six": "58A85E","seven": "D9F100","eight": "FF6868","nine": "7D7D7D","zero": "000000"}
+			],
 			["Ita", {"one": "C21300","two": "007F15","three": "020005","four": "9026B1","five": "E7D927","six": "503800","seven": "001E52","eight": "45DCD3","nine": "690000","zero": "EEB957"}],
-			["Unknown", {"one": "FFFFFF","two": "FCFA00","three": "E600E3","four": "30C600","five": "008AE6","six": "D70043","seven": "48040D","eight": "5F0088","nine": "B48400","zero": "D5D5D5"}],
 			["Novoselec", {"one": "000000","two": "D4DB00","three": "004FD9","four": "DE6000","five": "0000D1","six": "7600BA","seven": "D42300","eight": "077000","nine": "C900C3","zero": "FFFFFF"}],
-			["Domen", {"one": "000000","two": "00095C","three": "4B7000","four": "FA0000","five": "F5ED00","six": "06A600","seven": "E37900","eight": "00591E","nine": "0000D6","zero": "00F0D8"}],
-			["Teja", {"one": "26BD00","two": "D98200","three": "FCEB79","four": "FFE2D6","five": "F74A00","six": "EB3D88","seven": "A2FF00","eight": "0000FF","nine": "6600FF","zero": "FFFFFF"}],
-			["Masa 2", {"one": "0013AB","two": "5BFF00","three": "FFF900","four": "E03C00","five": "FFB9F3","six": "7C31D5","seven": "76CFDA","eight": "002F9B","nine": "5764EB","zero": "DDFCFA"}],
-			["Jess 2", {"one": "FFE600","two": "12A800","three": "EF00F7","four": "825A00","five": "E30000","six": "008CE6","seven": "C7E600","eight": "0062F0","nine": "8800FF","zero": "B6FAF7"}],
+			["Lili", {"one": "EDC700","two": "008425","three": "2C00C9","four": "B20079","five": "00B2CB","six": "AF1700","seven": "E500AF","eight": "493900","nine": "120035","zero": "FFFFFF"}],
+			//["Phantom boi (probably nina 3)", {"one": "1FBA00","two": "B10091","three": "826800","four": "1C1407","five": "00B5C0","six": "5D5086","seven": "D86D94","eight": "68001C","nine": "575556","zero": "00028B"}],
+			//["Unknown", {"one": "FFFFFF","two": "FCFA00","three": "E600E3","four": "30C600","five": "008AE6","six": "D70043","seven": "48040D","eight": "5F0088","nine": "B48400","zero": "D5D5D5"}],
 		];
+
+		/* format raw data */
+		var data = [];
+		for (var i = 0; i < raw_data.length; i++) {
+			data[i] = [];
+			data[i]["name"] = raw_data[i][0];
+			for (var j = 0; j < raw_data[i].length-1; j++) { // for each submission
+				data[i][j] = [];
+				for (var k = 0; k < 10; k++) {
+					data[i][j][k] = new Colour(raw_data[i][j+1][int_to_eng(k)]);
+				}
+			}
+		}
+		console.log("Initialised data: ");
+		console.log(data);
+
+
+
 
 
 		/* generate submissions */
-		for (var i = 0; i < data.length; i++) {
-			addSet(data[i][1], data[i][0]);
+		for (var i = 0; i < data.length; i++) { // for each person
+
+			// add submissions
+			for (var j = 0; j < data[i].length; j++) { // for each submission
+				addSet(data[i][j], data[i]["name"]+" "+j);
+			}
+
+			// then calculate consistency
+			var avg = [];
+			for (var k = 0; k < 10; k++) { // for each number
+				avg[k] = new Colour();
+				for (var j = 0; j < data[i].length; j++) { // for each submission
+					console.log("adding these two numbers:")
+					console.log(avg[k])
+					console.log(data[i][j][k])
+					avg[k] = sumRGB(avg[k], data[i][j][k]);
+					console.log("returned")
+					console.log(avg[k])
+				}
+				console.log("(nonscaled) number "+k+" for person "+i+":")
+				console.log(avg[k])
+				avg[k].scale(1/data[i].length);
+			}
+			console.log("adding avg:")
+			console.log(avg)
+			addSet(avg, "Average for "+data[i]["name"]);
 		}
 
 		$('#main')[0].appendChild(document.createElement("br"));
-
-		console.log("rgb(221, 252, 250) is hsl("+ hsl([221, 252, 250])+".")
-		console.log("back to rgb is "+ rgb(hsl([221, 252, 250]))+".")
 
 		/* calculate averages */
 		var avg = {};
-		for (var i = 0; i < 10; i++) {
-			var sumH = 0;
-			var sumS = 0;
-			var sumL = 0;
-			for (var j = 0; j < data.length; j++) {
-				sumH += getH(data[j][1][int_to_eng[i]]);
-				sumS += getS(data[j][1][int_to_eng[i]]);
-				sumL += getL(data[j][1][int_to_eng[i]]);
+		for (var i = 0; i < 10; i++) { // for each colour
+			var sum = new Colour();
+			var count = 0;
+			for (var j = 0; j < data.length; j++) { // for each person
+				for (var k = 0; k < data[j].length; k++) { // for each submission
+					sum = sumRGB(sum, data[j][k][i]);
+					count++;
+				}
 			}
-			avgH = Math.round(sumH / data.length);
-			avgS = Math.round(sumS / data.length);
-			avgL = Math.round(sumL / data.length);
-			c = rgb([avgH, avgS, avgL]);
-			avg[int_to_eng[i]] = compose(c[0], c[1], c[2]);
-			//console.log(avg[int_to_eng[i]]);
+			//avg[i] = sum;
+			avg[i] = sum.scale(1 / count);
 		}
-		addSet(avg, "Average");
+		addSet(avg, "Global average");
 
 		$('#main')[0].appendChild(document.createElement("br"));
 
-		/* generate deviations */
+		/* generate deviations * /
 		for (var i = 0; i < data.length; i++) {
 			var deviations = {}
 			for (var j = 0; j < 10; j++) {
@@ -221,7 +289,7 @@
 				//deviations[int_to_eng(j)] = average[] - data[i][1]
 			}
 			addSet(deviations, "Deviation of " + data[i][0]);
-		}
+		}*/
 	</script>
 </body>
 </html>
