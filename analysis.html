@@ -14,7 +14,7 @@
 <body>
 	<!-- Hello, adventurer! -->
 	<section id="main">
-		<p id="disclaimer">Submissions are not ordered chronologically.</p>
+		<p id="disclaimer">Submissions are ordered chronologically.</p>
 	</section>
 	<style>
 		#disclaimer{
@@ -34,6 +34,15 @@
 		}
 		.submission {
 			margin-bottom: 10px;
+		}
+		summary > .submission {
+			display: inline-block;
+		}
+		details > .submission {
+    		padding-left: 1.1em;
+		}
+		details {
+			margin-bottom: 1em;
 		}
 	</style>
 	<script>
@@ -99,7 +108,7 @@
 			}
 		}
 
-		function addSet(colours, label) {
+		function createSet(colours, label) {
 			var submission = document.createElement("div");
 			submission.classList.add("submission");
 
@@ -116,7 +125,7 @@
 			lbl.innerHTML = label;
 			submission.appendChild(lbl);
 
-			$('#main')[0].appendChild(submission);
+			return submission;
 		}
 
 
@@ -185,6 +194,20 @@
 			return arr[i];
 		}
 
+		function getAverageColours(person) {
+			person["average"] = [];
+			for (var num = 0; num < 10; num++) { // for each number
+				person["average"][num] = new Colour();
+				for (var submission = 0; submission < person.length; submission++) { // for each submission
+					person["average"][num] = // new average should be:
+						sumRGB(person["average"][num], // old average
+							   person[submission][num]); // + this submission
+				}
+				person["average"][num].scale(1/person.length); // divide by number of submissions
+			}
+			return person["average"];
+		}
+
 		raw_data = [
 			["Jess",
 				{"one": "F0C800","two": "94D400","three": "C20061","four": "804726","five": "F70000","six": "00F0C8","seven": "124F00","eight": "0045AD","nine": "8B00A1","zero": "E0E0E0"},
@@ -216,68 +239,64 @@
 		/* format raw data */
 		var data = [];
 		for (var i = 0; i < raw_data.length; i++) {
-			data[i] = [];
-			data[i]["name"] = raw_data[i][0];
-			for (var j = 0; j < raw_data[i].length-1; j++) { // for each submission
-				data[i][j] = [];
-				for (var k = 0; k < 10; k++) {
-					data[i][j][k] = new Colour(raw_data[i][j+1][int_to_eng(k)]);
+			var name = raw_data[i][0]
+			data[name] = [];
+			for (var submission = 0; submission < raw_data[i].length-1; submission++) { // for each submission
+				data[name][submission] = [];
+				for (var num = 0; num < 10; num++) {
+					data[name][submission][num] = new Colour(raw_data[i][submission+1][int_to_eng(num)]);
 				}
 			}
 		}
 		console.log("Initialised data: ");
 		console.log(data);
 
+		//submission = createSet();
+		//$('#main')[0].appendChild(submission);
 
-
-
-
-		/* generate submissions */
-		for (var i = 0; i < data.length; i++) { // for each person
-
-			// add submissions
-			for (var j = 0; j < data[i].length; j++) { // for each submission
-				addSet(data[i][j], data[i]["name"]+" "+j);
-			}
-
-			// then calculate consistency
-			var avg = [];
-			for (var k = 0; k < 10; k++) { // for each number
-				avg[k] = new Colour();
-				for (var j = 0; j < data[i].length; j++) { // for each submission
-					console.log("adding these two numbers:")
-					console.log(avg[k])
-					console.log(data[i][j][k])
-					avg[k] = sumRGB(avg[k], data[i][j][k]);
-					console.log("returned")
-					console.log(avg[k])
-				}
-				console.log("(nonscaled) number "+k+" for person "+i+":")
-				console.log(avg[k])
-				avg[k].scale(1/data[i].length);
-			}
-			console.log("adding avg:")
-			console.log(avg)
-			addSet(avg, "Average for "+data[i]["name"]);
+		// calculate averages
+		for (var person in data) {
+			data[person]["average"] = getAverageColours(data[person]);
 		}
 
-		$('#main')[0].appendChild(document.createElement("br"));
+		// add the "global" set
+		data["Global"] = []
+		var i = 0;
+		for (var person in data) {
+			if (person == "Global") continue;
+			data["Global"][i] = data[person]["average"];
+			i++;
+		}
 
-		/* calculate averages */
-		var avg = {};
-		for (var i = 0; i < 10; i++) { // for each colour
+		data["Global"]["average"] = getAverageColours(data["Global"]);
+
+		for (person in data) {
+			var details = document.createElement("details");
+			var summary = document.createElement("summary");
+			summary.appendChild(createSet(data[person]["average"], person));
+			details.appendChild(summary);
+			for (var submission = 0; submission < data[person].length; submission++) {
+				details.appendChild(createSet(data[person][submission], "Submission "+submission));
+			}
+			$("#main")[0].appendChild(details);
+		}
+
+		/*
+		// calculate global average
+		var avg = [];
+		for (var num = 0; num < 10; num++) { // for each number
 			var sum = new Colour();
 			var count = 0;
-			for (var j = 0; j < data.length; j++) { // for each person
-				for (var k = 0; k < data[j].length; k++) { // for each submission
-					sum = sumRGB(sum, data[j][k][i]);
+			for (var person in data) { // for each person
+				for (var submission = 0; submission < data[person].length; submission++) { // for each submission
+					sum = sumRGB(sum, data[person][submission][num]);
 					count++;
 				}
 			}
-			//avg[i] = sum;
 			avg[i] = sum.scale(1 / count);
 		}
-		addSet(avg, "Global average");
+		data["Global"] = avg;
+		*/
 
 		$('#main')[0].appendChild(document.createElement("br"));
 
