@@ -6,7 +6,6 @@
 	<meta charset="UTF-8">
 	<link rel="stylesheet" href="index.css"/>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link href="https://fonts.googleapis.com/css?family=Indie+Flower|Roboto" rel="stylesheet">
 	<script src="jscolor.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 	<noscript><meta http-equiv="refresh" content="0; url=https://www.whatismybrowser.com/guides/how-to-enable-javascript/auto"></noscript>
@@ -19,9 +18,10 @@
 	<style>
 		#disclaimer{
 			font-size: 16px;
+			display: block;
 		}
 		body {
-			font-family: "Roboto";
+			font-family: "Helvetica";
 			font-size: 50px;
 			padding: 0;
 			margin: 16px;
@@ -35,14 +35,39 @@
 		.submission {
 			margin-bottom: 10px;
 		}
+		summary {
+			cursor: pointer;
+		}
 		summary > .submission {
 			display: inline-block;
 		}
 		details > .submission {
-    		padding-left: 1.1em;
+				padding-left: 1.1em;
 		}
 		details {
 			margin-bottom: 1em;
+		}
+
+		p {
+			display: inline;
+		}
+
+		.consistencySet {
+			margin-top: 0.5em;
+		}
+		.subtitle {
+			color: rgba(0,0,0,.7);
+			font-size: 0.8em;
+			vertical-align: middle;
+		}
+
+		details[open] summary ~ * {
+			animation: sweep .5s ease-in-out;
+		}
+
+		@keyframes sweep {
+			0%    {opacity: 0; margin-left: -10px}
+			100%  {opacity: 1; margin-left: 0px}
 		}
 	</style>
 	<script>
@@ -71,7 +96,6 @@
 				var r = this.r % 256;
 				var g = this.g % 256;
 				var b = this.b % 256;
-				if (rgb_to_hex(r, g, g).length != 6) console.log("Warning! Hex string is of invalid length!");
 				return rgb_to_hex(r, g, b);
 			}
 			getH() { return this.hsl()[0]; }
@@ -108,9 +132,11 @@
 			}
 		}
 
-		function createSet(colours, label) {
+		function createSet(colours, label, extraClass) {
 			var submission = document.createElement("div");
 			submission.classList.add("submission");
+			if (extraClass) submission.classList.add(extraClass);
+			console.log(extraClass);
 
 			for (var i = 0; i < 10; i++) {
 				var e = document.createElement("span");
@@ -139,7 +165,7 @@
 			return (r+g+b).toUpperCase();
 		}
 		function composeHSL(h, s, l) {
-			c = rgb(h, s, l);
+			c = hsl_to_rgb(h, s, l);
 			rgb_to_hex(c[0], c[1], c[2]);
 		}
 		function sumRGB(c1, c2) {
@@ -147,7 +173,7 @@
 			return new Colour().setRGB(c1.r+c2.r, c1.g+c2.g, c1.b+c2.b);
 		}
 
-		function rgb(h, s, l) {
+		function hsl_to_rgb(h, s, l) {
 			h = h/360;
 
 			var r, g, b;
@@ -175,37 +201,114 @@
 			return [ r * 255, g * 255, b * 255 ];
 		}
 
+		// https://github.com/antimatter15/rgb-lab/blob/master/color.js
+		function rgb2lab(r, g, b) {
+			r = r / 255;
+			g = g / 255;
+			b = b / 255;
+			var x, y, z;
+
+			r = (r > 0.04045) ? Math.pow((r + 0.055) / 1.055, 2.4) : r / 12.92;
+			g = (g > 0.04045) ? Math.pow((g + 0.055) / 1.055, 2.4) : g / 12.92;
+			b = (b > 0.04045) ? Math.pow((b + 0.055) / 1.055, 2.4) : b / 12.92;
+
+			x = (r * 0.4124 + g * 0.3576 + b * 0.1805) / 0.95047;
+			y = (r * 0.2126 + g * 0.7152 + b * 0.0722) / 1.00000;
+			z = (r * 0.0193 + g * 0.1192 + b * 0.9505) / 1.08883;
+
+			x = (x > 0.008856) ? Math.pow(x, 1/3) : (7.787 * x) + 16/116;
+			y = (y > 0.008856) ? Math.pow(y, 1/3) : (7.787 * y) + 16/116;
+			z = (z > 0.008856) ? Math.pow(z, 1/3) : (7.787 * z) + 16/116;
+
+			return [(116 * y) - 16, 500 * (x - y), 200 * (y - z)]
+		}
+		function lab2rgb(l, a, b) {
+			var y = (l + 16) / 116,
+				x = a / 500 + y,
+				z = y - b / 200,
+				r, g, b;
+
+			x = 0.95047 * ((x * x * x > 0.008856) ? x * x * x : (x - 16/116) / 7.787);
+			y = 1.00000 * ((y * y * y > 0.008856) ? y * y * y : (y - 16/116) / 7.787);
+			z = 1.08883 * ((z * z * z > 0.008856) ? z * z * z : (z - 16/116) / 7.787);
+
+			r = x *	3.2406 + y * -1.5372 + z * -0.4986;
+			g = x * -0.9689 + y *	1.8758 + z *	0.0415;
+			b = x *	0.0557 + y * -0.2040 + z *	1.0570;
+
+			r = (r > 0.0031308) ? (1.055 * Math.pow(r, 1/2.4) - 0.055) : 12.92 * r;
+			g = (g > 0.0031308) ? (1.055 * Math.pow(g, 1/2.4) - 0.055) : 12.92 * g;
+			b = (b > 0.0031308) ? (1.055 * Math.pow(b, 1/2.4) - 0.055) : 12.92 * b;
+
+			return [Math.max(0, Math.min(1, r)) * 255,
+					Math.max(0, Math.min(1, g)) * 255,
+					Math.max(0, Math.min(1, b)) * 255]
+		}
+		function deltaE(labA, labB){
+			var deltaL = labA[0] - labB[0];
+			var deltaA = labA[1] - labB[1];
+			var deltaB = labA[2] - labB[2];
+			var c1 = Math.sqrt(labA[1] * labA[1] + labA[2] * labA[2]);
+			var c2 = Math.sqrt(labB[1] * labB[1] + labB[2] * labB[2]);
+			var deltaC = c1 - c2;
+			var deltaH = deltaA * deltaA + deltaB * deltaB - deltaC * deltaC;
+			deltaH = deltaH < 0 ? 0 : Math.sqrt(deltaH);
+			var sc = 1.0 + 0.045 * c1;
+			var sh = 1.0 + 0.015 * c1;
+			var deltaLKlsl = deltaL / (1.0);
+			var deltaCkcsc = deltaC / (sc);
+			var deltaHkhsh = deltaH / (sh);
+			var i = deltaLKlsl * deltaLKlsl + deltaCkcsc * deltaCkcsc + deltaHkhsh * deltaHkhsh;
+			return i < 0 ? 0 : Math.sqrt(i);
+		}
+
 		function distanceRGB(c1, c2) {
 			// calculate distance between two colours in rgb space
 			var deltaR = c1.r - c2.r;
 			var deltaG = c1.g - c2.g;
 			var deltaB = c1.b - c2.b;
-			var d = Math.sqrt(Math.pow(deltaR, 2), Math.pow(deltaG, 2), Math.pow(deltaB, 2));
+			var d = Math.sqrt(Math.pow(deltaR, 2) + Math.pow(deltaG, 2) + Math.pow(deltaB, 2));
 
 			return d;
 		}
+		function distanceHSL(c1, c2) {
+			c1 = c1.hsl();
+			c2 = c2.hsl();
+			// calculate distance between two colours in hsl space
+			var deltaH = c1[0]/360 - c2[0]/360;
+			var deltaS = c1[1] - c2[1];
+			var deltaL = c1[2] - c2[2];
+			var d = Math.sqrt(Math.pow(deltaH, 2) + Math.pow(deltaS, 2) + Math.pow(deltaL, 2));
+			d *= 255;
 
-		function eng_to_int(str) {
-			var arr = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven":7, "eight": 8, "nine": 9, "zero": 0};
-			return arr[str];
+			return d;
 		}
-		function int_to_eng(i) {
-			var arr = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
-			return arr[i];
+		function distanceLAB(c1, c2) {
+			var d = deltaE(rgb2lab(c1.r, c1.g, c1.b), rgb2lab(c2.r, c2.g, c2.b));
+			if (d > 100) d = 100; // account for rounding errors
+			if (d < 0) d = 0;
+			return d;
+		}
+		var distFunc = distanceLAB;
+		var maxDist = 100;//255*Math.sqrt(3); // RGB/HSL: Math.sqrt(3)*255; LAB: 100
+
+		function scale(num, in_min, in_max, out_min, out_max) {
+			return (num - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 		}
 
-		function getAverageColours(person) {
-			person["average"] = [];
+
+		function getAverageColour(arr, f=sumRGB) {
+			// accepts an array of colours, returns average colour (RGB)
+			avg = [];
 			for (var num = 0; num < 10; num++) { // for each number
-				person["average"][num] = new Colour();
-				for (var submission = 0; submission < person.length; submission++) { // for each submission
-					person["average"][num] = // new average should be:
-						sumRGB(person["average"][num], // old average
-							   person[submission][num]); // + this submission
+				avg[num] = new Colour();
+				for (var sub = 0; sub < arr.length; sub++) { // for each submission
+					avg[num] = // new average should be:
+						f(avg[num], arr[sub][num]); // old avg + this submission
 				}
-				person["average"][num].scale(1/person.length); // divide by number of submissions
+				avg[num].scale(1/arr.length); // divide by number of submissions
 			}
-			return person["average"];
+			return avg;
 		}
 
 		raw_data = [
@@ -227,16 +330,28 @@
 			],
 			["Nina",
 				{"one": "AFA500","two": "006934","three": "23009E","four": "A30016","five": "008AB2","six": "523F00","seven": "8F007F","eight": "FF2626","nine": "00DACE","zero": "726F00"},
+				// Nina refuses to acknowledge the following submission as hers, but by all data it should belong to her.
+				{"one": "1FBA00","two": "B10091","three": "826800","four": "1C1407","five": "00B5C0","six": "5D5086","seven": "D86D94","eight": "68001C","nine": "575556","zero": "00028B"},
 				{"one": "D800C7","two": "514C52","three": "E03E00","four": "51A8AB","five": "7BF5FF","six": "58A85E","seven": "D9F100","eight": "FF6868","nine": "7D7D7D","zero": "000000"}
+			],
+			["test (consistent)",
+				{"one": "000000","two": "00FFFF","three": "00FF00","four": "A30016","five": "008AB2","six": "00DACE","seven": "00DACE","eight": "00DACE","nine": "00DACE","zero": "726F00"},
+				{"one": "000000","two": "00FFFF","three": "00FF00","four": "A30016","five": "008AB2","six": "00DACE","seven": "00DACE","eight": "00DACE","nine": "00DACE","zero": "726F00"},
+			],
+			["test2 (inconsistent)",
+				{"one": "000000","two": "00FFFF","three": "00FF00","four": "0000FF","five": "EEFF00","six": "000000","seven": "0FFF00","eight": "F0F0FF","nine": "0FFFF0","zero": "00FFF0"},
+				{"one": "FFFFFF","two": "FF0000","three": "FF00FF","four": "FFFF00","five": "2211FF","six": "FFFFFF","seven": "F000FF","eight": "0F0F00","nine": "F0000F","zero": "FF000F"},
 			],
 			["Ita", {"one": "C21300","two": "007F15","three": "020005","four": "9026B1","five": "E7D927","six": "503800","seven": "001E52","eight": "45DCD3","nine": "690000","zero": "EEB957"}],
 			["Novoselec", {"one": "000000","two": "D4DB00","three": "004FD9","four": "DE6000","five": "0000D1","six": "7600BA","seven": "D42300","eight": "077000","nine": "C900C3","zero": "FFFFFF"}],
 			["Lili", {"one": "EDC700","two": "008425","three": "2C00C9","four": "B20079","five": "00B2CB","six": "AF1700","seven": "E500AF","eight": "493900","nine": "120035","zero": "FFFFFF"}],
-			//["Phantom boi (probably nina 3)", {"one": "1FBA00","two": "B10091","three": "826800","four": "1C1407","five": "00B5C0","six": "5D5086","seven": "D86D94","eight": "68001C","nine": "575556","zero": "00028B"}],
 			//["Unknown", {"one": "FFFFFF","two": "FCFA00","three": "E600E3","four": "30C600","five": "008AE6","six": "D70043","seven": "48040D","eight": "5F0088","nine": "B48400","zero": "D5D5D5"}],
 		];
 
-		/* format raw data */
+		// format raw data
+		function int_to_eng(i) {
+			return ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"][i];
+		}
 		var data = [];
 		for (var i = 0; i < raw_data.length; i++) {
 			var name = raw_data[i][0]
@@ -248,15 +363,10 @@
 				}
 			}
 		}
-		console.log("Initialised data: ");
-		console.log(data);
-
-		//submission = createSet();
-		//$('#main')[0].appendChild(submission);
 
 		// calculate averages
 		for (var person in data) {
-			data[person]["average"] = getAverageColours(data[person]);
+			data[person]["average"] = getAverageColour(data[person]);
 		}
 
 		// add the "global" set
@@ -268,47 +378,93 @@
 			i++;
 		}
 
-		data["Global"]["average"] = getAverageColours(data["Global"]);
+		// get global average
+		data["Global"]["average"] = getAverageColour(data["Global"]);
 
-		for (person in data) {
-			var details = document.createElement("details");
-			var summary = document.createElement("summary");
-			summary.appendChild(createSet(data[person]["average"], person));
-			details.appendChild(summary);
+
+		// calculate deviations from average
+		for (var person in data) {
+			data[person]["variances"] = [];
 			for (var submission = 0; submission < data[person].length; submission++) {
-				details.appendChild(createSet(data[person][submission], "Submission "+submission));
+				data[person]["variances"][submission] = [];
+				for (var num = 0; num < 10; num++) {
+					var dev = distFunc(data[person][submission][num], data[person]["average"][num]);
+					dev = Math.round(scale(dev, 0, maxDist, 0, 255));
+					dev = 255 - dev; // invert colour
+					data[person]["variances"][submission][num] = new Colour(rgb_to_hex(dev, dev, dev));
+				}
 			}
-			$("#main")[0].appendChild(details);
+			data[person]["variances"]["average"] = getAverageColour(data[person]["variances"]);
+		}
+
+
+		// if person has 2 submissions, calculate diff
+		for (var person in data) {
+			if (data[person].length != 2) continue;
+			data[person]["diff"] = [];
+
+			for (var num = 0; num < 10; num++) {
+				var dev = distFunc(data[person][0][num], data[person][1][num]);
+				dev = Math.round(scale(dev, 0, maxDist, 0, 255));
+				dev = 255 - dev; // invert colour
+				data[person]["diff"][num] = new Colour(rgb_to_hex(dev, dev, dev));
+			}
 		}
 
 		/*
-		// calculate global average
-		var avg = [];
-		for (var num = 0; num < 10; num++) { // for each number
-			var sum = new Colour();
-			var count = 0;
-			for (var person in data) { // for each person
-				for (var submission = 0; submission < data[person].length; submission++) { // for each submission
-					sum = sumRGB(sum, data[person][submission][num]);
-					count++;
-				}
+		// sum average deviation of all colours, save as "consistency score"
+		for (person in data) {
+			if (data[person].length != 2) continue;
+			var sum = 0;
+			for (var num = 0; num < 10; num++) {
+				//sum += data[person]["deviations"]["average"][num].r; // all channels are the same anyway
+				sum  += data[person]["diff"][num].r;
 			}
-			avg[i] = sum.scale(1 / count);
+			sum = scale(sum, 0, 2550, 0, 100);
+			//data[person]["deviations"]["score"] = Math.round(sum);
+			data[person]["score"] = Math.round(sum);
 		}
-		data["Global"] = avg;
 		*/
 
-		$('#main')[0].appendChild(document.createElement("br"));
-
-		/* generate deviations * /
-		for (var i = 0; i < data.length; i++) {
-			var deviations = {}
-			for (var j = 0; j < 10; j++) {
-
-				//deviations[int_to_eng(j)] = average[] - data[i][1]
+		// count how many colours are consistently the same (distance to avg is < k for all submissions)
+		var k = 10;
+		for (var person in data) {
+			var score = 0;
+			for (var num = 0; num < 10; num++) {
+				var consistent = true;
+				for (var submission = 0; submission < data[person].length; submission++) {
+					var variance = distFunc(data[person][submission][num], data[person]["average"][num]);
+					if (variance > 30) {
+						consistent = false;
+						break;
+					}
+				}
+				if (consistent) score++;
 			}
-			addSet(deviations, "Deviation of " + data[i][0]);
-		}*/
+			data[person]["score"] = score;
+		}
+
+		console.log(data);
+
+		// add data to screen
+		for (person in data) {
+			var details = document.createElement("details");
+			var summary = document.createElement("summary");
+			summary.appendChild(createSet(data[person]["average"], "<p class='title'>"+person+"</p>"));
+			details.appendChild(summary);
+			for (var submission = 0; submission < data[person].length; submission++) {
+				details.appendChild(createSet(data[person][submission],
+						"<p class='subtitle'>Submission "+submission+"</p>"));
+			}
+			if (data[person].length > 1) {
+				details.appendChild(createSet(data[person]["variances"]["average"],
+					"<p class='subtitle'>Consistency: "+data[person]["score"]+"/10</p>",
+					"consistencySet"));
+			}
+
+			$("#main")[0].appendChild(details);
+		}
+
 	</script>
 </body>
 </html>
