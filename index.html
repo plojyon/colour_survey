@@ -13,6 +13,7 @@
 </head>
 <body>
 	<!-- Hello, adventurer! -->
+	<span id="name_label">Ime: <input type="text" placeholder="Janez" id="name"></span>
 	<section id="main">
 		<span class="digits" id="one">
 			<input type="hidden" id="one_val" value="FFFFFF">
@@ -63,6 +64,9 @@
 			padding: 0;
 			margin: 16px;
 		}
+		#name_label {
+			font-size: 16px;
+		}
 		span.digits {
 			background-color: white;
 			margin: 0;
@@ -79,21 +83,22 @@
 	<script>
 		function send() {
 			console.log("sending");
-			var message = '{' +
-				'"one": ' + $('#one_val')[0].value + ',' +
-				'"two": ' + $('#two_val')[0].value + ',' +
-				'"three": ' + $('#three_val')[0].value + ',' +
-				'"four": ' + $('#four_val')[0].value + ',' +
-				'"five": ' + $('#five_val')[0].value + ',' +
-				'"six": ' + $('#six_val')[0].value + ',' +
-				'"seven": ' + $('#seven_val')[0].value + ',' +
-				'"eight": ' + $('#eight_val')[0].value + ',' +
-				'"nine": ' + $('#nine_val')[0].value + ',' +
-				'"zero": ' + $('#zero_val')[0].value + '}';
+			var message = '["'+$('#name')[0].value+'", {' +
+					'"one": "' + $('#one_val')[0].value + '",' +
+					'"two": "' + $('#two_val')[0].value + '",' +
+					'"three": "' + $('#three_val')[0].value + '",' +
+					'"four": "' + $('#four_val')[0].value + '",' +
+					'"five": "' + $('#five_val')[0].value + '",' +
+					'"six": "' + $('#six_val')[0].value + '",' +
+					'"seven": "' + $('#seven_val')[0].value + '",' +
+					'"eight": "' + $('#eight_val')[0].value + '",' +
+					'"nine": "' + $('#nine_val')[0].value + '",' +
+					'"zero": "' + $('#zero_val')[0].value +
+				'"}],';
 			var channel = "https://discordapp.com/api/webhooks/543840354470723604/2hZAz25p4Zl_bcEOxjdQvkhBGm7W65GlXXww_6zQhd5HLDjGx7o42ogKmmKoljYoT03n"
 			var params = { "content": message, "username": "Survey submission" };
 			$.post(channel, params, function (data) {}, "json");
-			$("body")[0].innerHTML = "Hvala.";
+			$("body")[0].innerHTML = "Hvala "+$('#name')[0].value;
 		}
 	</script>
 </body>
