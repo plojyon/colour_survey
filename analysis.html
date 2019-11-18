@@ -425,14 +425,14 @@
 		*/
 
 		// count how many colours are consistently the same (distance to avg is < k for all submissions)
-		var k = 10;
+		var k = 30;
 		for (var person in data) {
 			var score = 0;
 			for (var num = 0; num < 10; num++) {
 				var consistent = true;
 				for (var submission = 0; submission < data[person].length; submission++) {
 					var variance = distFunc(data[person][submission][num], data[person]["average"][num]);
-					if (variance > 30) {
+					if (variance > k) {
 						consistent = false;
 						break;
 					}
