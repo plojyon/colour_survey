@@ -98,8 +98,8 @@
 				'"}],';
 			var channel = "https://discordapp.com/api/webhooks/543840354470723604/2hZAz25p4Zl_bcEOxjdQvkhBGm7W65GlXXww_6zQhd5HLDjGx7o42ogKmmKoljYoT03n"
 			var params = { "content": message, "username": "Survey submission" };
-			$.post(channel, params, function (data) {}, "json");
 			$("body")[0].innerHTML = "Hvala "+$('#name')[0].value;
+			$.post(channel, params, function (data) {}, "json");
 		}
 	</script>
 </body>
