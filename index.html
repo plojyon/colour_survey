@@ -14,7 +14,6 @@
 <body>
 	<!-- Hello, adventurer! -->
 	<p id="uvod">Predstavljajte si stevilo 2..<br>Kaksne barve je, v vasi predstavi?<br>Kaj pa 4? 8? 1?<br><br>Kliknite na stevilko in izberite pripadajoco barvo:</p>
-	<span id="name_label">Ime: <input type="text" placeholder="Janez Ploj" id="name"></span>
 	<section id="main">
 		<span class="digits" id="one">
 			<input type="hidden" id="one_val" value="FFFFFF">
@@ -56,6 +55,9 @@
 			<input type="hidden" id="zero_val" value="FFFFFF">
 			<button class="jscolor {valueElement:'zero_val', value: 'FFF', mode: 'HVS', closable:true, closeText:'Close'}">0</button>
 		</span>
+		<br>
+		<span id="name_label">Ime: <input type="text" placeholder="Janez Ploj" id="name"></span>
+		<p>Ime rabim zato, da lahko povezem tvoje oddaje skozi cas (merim konsistenco tvojih odgovorov). Namesto imena lahko napises poljuben identifikator, po katerem te lahko prepoznam.</p>
 		<button onclick="send()">Submit</button>
 	</section>
 	<style>

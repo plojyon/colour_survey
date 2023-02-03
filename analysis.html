@@ -22,15 +22,21 @@
 		}
 		body {
 			font-family: "Helvetica";
-			font-size: 50px;
+			font-size: 30px;
 			padding: 0;
 			margin: 16px;
 		}
 		span.digits {
 			background-color: white;
-			margin: 10px;
+			margin: 5px;
 			padding: 0 8px;
-			border: 1px solid black;
+			border: 3px solid black;
+		}
+		span.digits.consistent {
+			border: 3px solid green;
+		}
+		span.digits.inconsistent {
+			border: 3px solid red;
 		}
 		.submission {
 			margin-bottom: 10px;
@@ -132,7 +138,7 @@
 			}
 		}
 
-		function createSet(colours, label, extraClass) {
+		function createSet(colours, label, extraClass, digitClasses) {
 			var submission = document.createElement("div");
 			submission.classList.add("submission");
 			if (extraClass) submission.classList.add(extraClass);
@@ -143,6 +149,8 @@
 				e.classList.add("digits");
 				e.innerHTML = i;
 				e.style.backgroundColor = '#' + colours[i].hex();
+				if (digitClasses && digitClasses[i])
+					e.classList.add(digitClasses[i]);
 				submission.appendChild(e);
 			}
 
@@ -311,25 +319,34 @@
 			return avg;
 		}
 
+		// timestamp are precise only to the date, not hours or minutes.
 		raw_data = [
 			["Jess",
 				{"one": "F0C800","two": "94D400","three": "C20061","four": "804726","five": "F70000","six": "00F0C8","seven": "124F00","eight": "0045AD","nine": "8B00A1","zero": "E0E0E0", "timestamp": "1549756800000"},
 				{"one": "FFE600","two": "12A800","three": "EF00F7","four": "825A00","five": "E30000","six": "008CE6","seven": "C7E600","eight": "0062F0","nine": "8800FF","zero": "B6FAF7", "timestamp": "1572220800000"},
-				{"one": "FAD900","two": "199138","three": "FA7AAB","four": "5E4812","five": "EB2F3B","six": "CA00F5","seven": "0065D1","eight": "00C8D9","nine": "EB9500","zero": "DEFFFB", "timestamp": "1606263194000"}
+				{"one": "FAD900","two": "199138","three": "FA7AAB","four": "5E4812","five": "EB2F3B","six": "CA00F5","seven": "0065D1","eight": "00C8D9","nine": "EB9500","zero": "DEFFFB", "timestamp": "1606263194000"},
+				{"one": "E9D900","two": "2714AC","three": "E48ADD","four": "6A4E2B","five": "DD0000","six": "00BFC4","seven": "ABE754","eight": "0074CE","nine": "FAFF6B","zero": "BAE4E8", "timestamp": "1675400000000"}
 			],
 			["Masa",
 				{"one": "004E8D","two": "7FC900","three": "F6EE00","four": "D91600","five": "BA0097","six": "70009B","seven": "00EEFF","eight": "002BAF","nine": "0098AC","zero": "00F1F1", "timestamp": "1549756800000"},
 				{"one": "0013AB","two": "5BFF00","three": "FFF900","four": "E03C00","five": "FFB9F3","six": "7C31D5","seven": "76CFDA","eight": "002F9B","nine": "5764EB","zero": "DDFCFA", "timestamp": "1572134400000"},
 				{"one": "0016ED","two": "1DED00","three": "FAF600","four": "F52600","five": "FF96E7","six": "5E00D9","seven": "00CDED","eight": "0016EB","nine": "7200FF","zero": "CEF3F5", "timestamp": "1596067200000"},
-				{"one": "0070BB","two": "30E346","three": "F1EB00","four": "FD2500","five": "EFBADA","six": "6E00D3","seven": "20A2DD","eight": "0046A2","nine": "3B0094","zero": "A7C4CC", "timestamp": "1605744000000"}
+				{"one": "0070BB","two": "30E346","three": "F1EB00","four": "FD2500","five": "EFBADA","six": "6E00D3","seven": "20A2DD","eight": "0046A2","nine": "3B0094","zero": "A7C4CC", "timestamp": "1605744000000"},
+				{"one": "9FD3F1","two": "30FF00","three": "FFF100","four": "F12800","five": "F6C3FC","six": "6600F2","seven": "8DF2F7","eight": "0044FE","nine": "5200E0","zero": "D6F2F2", "timestamp": "1675400000000"}
 			],
 			["Domen",
-				{"one": "000000","two": "00095C","three": "4B7000","four": "FA0000","five": "F5ED00","six": "06A600","seven": "E37900","eight": "00591E","nine": "0000D6","zero": "00F0D8"},
-				{"one": "000000","two": "0E0073","three": "006E05","four": "E70E00","five": "BF8300","six": "005914","seven": "F0FF00","eight": "6A000B","nine": "001AFF","zero": "FFFFFF"}
+				{"one": "000000","two": "00095C","three": "4B7000","four": "FA0000","five": "F5ED00","six": "06A600","seven": "E37900","eight": "00591E","nine": "0000D6","zero": "00F0D8", "timestamp": "1550242713000"},
+				{"one": "000000","two": "0E0073","three": "006E05","four": "E70E00","five": "BF8300","six": "005914","seven": "F0FF00","eight": "6A000B","nine": "001AFF","zero": "FFFFFF", "timestamp": "1572447513000"}
 			],
 			["Teja",
-				{"one": "26BD00","two": "D98200","three": "FCEB79","four": "FFE2D6","five": "F74A00","six": "EB3D88","seven": "A2FF00","eight": "0000FF","nine": "6600FF","zero": "FFFFFF"},
-				{"one": "2DE000","two": "00D4DB","three": "DE5900","four": "C22700","five": "FF0A0A","six": "FFBDBD","seven": "2CC937","eight": "6000DE","nine": "D65600","zero": "FFFFFF"}
+				{"one": "26BD00","two": "D98200","three": "FCEB79","four": "FFE2D6","five": "F74A00","six": "EB3D88","seven": "A2FF00","eight": "0000FF","nine": "6600FF","zero": "FFFFFF", "timestamp": "1551797913000"},
+				{"one": "2DE000","two": "00D4DB","three": "DE5900","four": "C22700","five": "FF0A0A","six": "FFBDBD","seven": "2CC937","eight": "6000DE","nine": "D65600","zero": "FFFFFF", "timestamp": "1572620313000"},
+				{"one": "A2FCCF","two": "F50021","three": "FFF824","four": "8800F0","five": "28ED00","six": "FA00E9","seven": "E89300","eight": "4900F5","nine": "005E16","zero": "FFFFFF", "timestamp": "1675400000000"}
+			],
+			["Timotej",
+				{"one": "00B00C","two": "0B00C2","three": "D8DB00","four": "F50006","five": "00E0E8","six": "0D0200","seven": "009168","eight": "A16C00","nine": "08F200","zero": "650066", "timestamp": "1579273113000"},
+				{"one": "00E0F2","two": "00F534","three": "F2D600","four": "C92D00","five": "1B00AB","six": "D800D9","seven": "7A5600","eight": "003C57","nine": "E000DD","zero": "0A0500", "timestamp": "1605797913000"},
+				{"one": "780656","two": "8318F2","three": "FF9D00","four": "EBE628","five": "009144","six": "009690","seven": "00089C","eight": "1C6B00","nine": "CF4271","zero": "C20042", "timestamp": "1675400000000"}
 			],
 			["Nina",
 				{"one": "AFA500","two": "006934","three": "23009E","four": "A30016","five": "008AB2","six": "523F00","seven": "8F007F","eight": "FF2626","nine": "00DACE","zero": "726F00"},
@@ -358,10 +375,10 @@
 				{"one": "FFFF00","two": "FA1100","three": "00ADD9","four": "1900BD","five": "005205","six": "BD00AA","seven": "00F508","eight": "000000","nine": "A37D00","zero": "FFFFFF"}
 			],
 			//["Rakar", {"one": "1D001D","two": "00B6DF","three": "672C00","four": "E7E100","five": "0C0070","six": "00FF2B","seven": "F0EC00","eight": "D90000","nine": "CF0000","zero": "FFFFFF"}],
-			["Jonas",
-				{"one": "008379","two": "007C18","three": "000A6F","four": "004E39","five": "2B5B00","six": "006184","seven": "00335E","eight": "506500","nine": "008965","zero": "00496D"},
-				{"one": "FFFFFF","two": "FFFFFF","three": "2CAD26","four": "FFFFFF","five": "FFFFFF","six": "FFFFFF","seven": "FFFFFF","eight": "FFFFFF","nine": "FFFFFF","zero": "FFFFFF"}
-			],
+			// ["Jonas",
+			// 	{"one": "008379","two": "007C18","three": "000A6F","four": "004E39","five": "2B5B00","six": "006184","seven": "00335E","eight": "506500","nine": "008965","zero": "00496D"},
+			// 	{"one": "FFFFFF","two": "FFFFFF","three": "2CAD26","four": "FFFFFF","five": "FFFFFF","six": "FFFFFF","seven": "FFFFFF","eight": "FFFFFF","nine": "FFFFFF","zero": "FFFFFF"}
+			// ],
 			//["Kolčarš", {"one": "00CCD3","two": "E43300","three": "13DC00","four": "E9D200","five": "7A0000","six": "AF009A","seven": "FF8500","eight": "00297C","nine": "006118","zero": "FFFFFF"}],
 			//["Zunti", {"one": "FCCA00","two": "F29900","three": "DE5100","four": "E33D00","five": "F70010","six": "FF00CC","seven": "9000FF","eight": "2A00FA","nine": "00DDFF","zero": "00FF11"}],
 			//["Godesa", {"one": "0600B7","two": "FE9400","three": "081B00","four": "FFF600","five": "FF0000","six": "00B3FF","seven": "228900","eight": "00D4F4","nine": "9300D3","zero": "FFFFFF"}],
@@ -386,10 +403,6 @@
 			//["Lili", {"one": "EDC700","two": "008425","three": "2C00C9","four": "B20079","five": "00B2CB","six": "AF1700","seven": "E500AF","eight": "493900","nine": "120035","zero": "FFFFFF"}],
 			//["Tinkara", {"one": "000000","two": "FC2A00","three": "060061","four": "FFDD00","five": "004509","six": "F76300","seven": "28F000","eight": "670073","nine": "782800","zero": "FFFFFF"}],
 			//["Levstek", {"one": "5BA300","two": "E09712","three": "00B2C9","four": "0033D1","five": "CC0067","six": "FF0A0A","seven": "6F00B8","eight": "B1C700","nine": "EBDE00","zero": "D99C50"}],
-			["Timotej",
-				{"one": "00B00C","two": "0B00C2","three": "D8DB00","four": "F50006","five": "00E0E8","six": "0D0200","seven": "009168","eight": "A16C00","nine": "08F200","zero": "650066"},
-				{"one": "00E0F2","two": "00F534","three": "F2D600","four": "C92D00","five": "1B00AB","six": "D800D9","seven": "7A5600","eight": "003C57","nine": "E000DD","zero": "0A0500"}
-			],
 			//["Jakob Drusany", {"one": "19FA00","two": "0600FF","three": "FFFA00","four": "A700F7","five": "00F7FF","six": "FF0000","seven": "FF8300","eight": "00ACB3","nine": "007500","zero": "000000"}],
 			//["Mojca", {"one": "FFFFFF","two": "FFF400","three": "00C7F5","four": "E39800","five": "0BEC00","six": "F00000","seven": "0031AA","eight": "000000","nine": "905500","zero": "FFFFFF"}], // Mojca Bozic (of lemon)
 			//["Luka Urbanc", {"one": "FFFFFF","two": "1DC900","three": "730071","four": "B52B00","five": "000FD4","six": "00A309","seven": "E6AB00","eight": "6B0060","nine": "1C0B00","zero": "0027B5"}],
@@ -480,19 +493,18 @@
 		// count how many colours are consistently the same (distance to avg is < k for all submissions)
 		var k = 30;
 		for (var person in data) {
-			var score = 0;
+			let consistencies = Array.apply(null, Array(10)).map(() => true);
 			for (var num = 0; num < 10; num++) {
-				var consistent = true;
 				for (var submission = 0; submission < data[person].length; submission++) {
 					var variance = distFunc(data[person][submission][num], data[person]["average"][num]);
 					if (variance > k) {
-						consistent = false;
+						consistencies[num] = false;
 						break;
 					}
 				}
-				if (consistent) score++;
 			}
-			data[person]["score"] = score;
+			data[person]["score"] = consistencies.filter(Boolean).length;
+			data[person]["consistencies"] = consistencies;
 		}
 
 		console.log(data);
@@ -518,9 +530,14 @@
 						"<p class='subtitle'>"+subtitle+"</p>"));
 			}
 			if (data[person].length > 1) {
-				details.appendChild(createSet(data[person]["variances"]["average"],
-					"<p class='subtitle'>Consistency: "+data[person]["score"]+"/10</p>",
-					"consistencySet"));
+				details.appendChild(
+					createSet(
+						data[person]["variances"]["average"],
+						"<p class='subtitle'>Consistency: "+data[person]["score"]+"/10</p>",
+						"consistencySet",
+						data[person]["consistencies"].map(x=>x?"consistent":"inconsistent")
+					)
+				);
 			}
 
 			$("#main")[0].appendChild(details);
