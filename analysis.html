@@ -1,55 +1,69 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 
 	<title>Colour analysis</title>
 	<meta charset="UTF-8">
-	<link rel="stylesheet" href="index.css"/>
+	<link rel="stylesheet" href="index.css" />
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<script src="jscolor.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-	<noscript><meta http-equiv="refresh" content="0; url=https://www.whatismybrowser.com/guides/how-to-enable-javascript/auto"></noscript>
+	<noscript>
+		<meta http-equiv="refresh"
+			content="0; url=https://www.whatismybrowser.com/guides/how-to-enable-javascript/auto">
+	</noscript>
 </head>
+
 <body>
 	<!-- Hello, adventurer! -->
 	<section id="main">
 		<p id="disclaimer">Analytics are displayed when at least 2 submissions have been made.</p>
 	</section>
 	<style>
-		#disclaimer{
+		#disclaimer {
 			font-size: 16px;
 			display: block;
 		}
+
 		body {
 			font-family: "Helvetica";
 			font-size: 30px;
 			padding: 0;
 			margin: 16px;
 		}
+
 		span.digits {
 			background-color: white;
 			margin: 5px;
 			padding: 0 8px;
 			border: 3px solid black;
 		}
+
 		span.digits.consistent {
 			border: 3px solid green;
 		}
+
 		span.digits.inconsistent {
 			border: 3px solid red;
 		}
+
 		.submission {
 			margin-bottom: 10px;
 		}
+
 		summary {
 			cursor: pointer;
 		}
-		summary > .submission {
+
+		summary>.submission {
 			display: inline-block;
 		}
-		details > .submission {
-				padding-left: 1.1em;
+
+		details>.submission {
+			padding-left: 1.1em;
 		}
+
 		details {
 			margin-bottom: 1em;
 		}
@@ -61,19 +75,27 @@
 		.consistencySet {
 			margin-top: 0.5em;
 		}
+
 		.subtitle {
-			color: rgba(0,0,0,.7);
+			color: rgba(0, 0, 0, .7);
 			font-size: 0.8em;
 			vertical-align: middle;
 		}
 
-		details[open] summary ~ * {
+		details[open] summary~* {
 			animation: sweep .5s ease-in-out;
 		}
 
 		@keyframes sweep {
-			0%    {opacity: 0; margin-left: -10px}
-			100%  {opacity: 1; margin-left: 0px}
+			0% {
+				opacity: 0;
+				margin-left: -10px
+			}
+
+			100% {
+				opacity: 1;
+				margin-left: 0px
+			}
 		}
 	</style>
 	<script>
@@ -93,9 +115,9 @@
 				return this;
 			}
 			scale(factor) {
-				this.r = Math.round(this.r*factor);
-				this.g = Math.round(this.g*factor);
-				this.b = Math.round(this.b*factor);
+				this.r = Math.round(this.r * factor);
+				this.g = Math.round(this.g * factor);
+				this.b = Math.round(this.b * factor);
 				return this;
 			}
 			hex() {
@@ -109,9 +131,9 @@
 			getL() { return this.hsl()[2]; }
 
 			hsl() {
-				var r = this.r%256;
-				var g = this.g%256;
-				var b = this.b%256;
+				var r = this.r % 256;
+				var g = this.g % 256;
+				var b = this.b % 256;
 				// normalise components to range [0, 1]
 				r /= 255;
 				g /= 255;
@@ -134,7 +156,7 @@
 
 					h /= 6;
 				}
-				return [ h*360, s, l ];
+				return [h * 360, s, l];
 			}
 		}
 
@@ -164,13 +186,13 @@
 
 
 		function rgb_to_hex(r, g, b) {
-			r = (r%256).toString(16);
-			g = (g%256).toString(16);
-			b = (b%256).toString(16);
-			if (r.length == 1) r = "0"+r;
-			if (g.length == 1) g = "0"+g;
-			if (b.length == 1) b = "0"+b;
-			return (r+g+b).toUpperCase();
+			r = (r % 256).toString(16);
+			g = (g % 256).toString(16);
+			b = (b % 256).toString(16);
+			if (r.length == 1) r = "0" + r;
+			if (g.length == 1) g = "0" + g;
+			if (b.length == 1) b = "0" + b;
+			return (r + g + b).toUpperCase();
 		}
 		function composeHSL(h, s, l) {
 			c = hsl_to_rgb(h, s, l);
@@ -178,11 +200,11 @@
 		}
 		function sumRGB(c1, c2) {
 			// sums components of two colours in RGB
-			return new Colour().setRGB(c1.r+c2.r, c1.g+c2.g, c1.b+c2.b);
+			return new Colour().setRGB(c1.r + c2.r, c1.g + c2.g, c1.b + c2.b);
 		}
 
 		function hsl_to_rgb(h, s, l) {
-			h = h/360;
+			h = h / 360;
 
 			var r, g, b;
 
@@ -192,21 +214,21 @@
 				function hue2rgb(p, q, t) {
 					if (t < 0) t += 1;
 					if (t > 1) t -= 1;
-					if (t < 1/6) return p + (q - p) * 6 * t;
-					if (t < 1/2) return q;
-					if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+					if (t < 1 / 6) return p + (q - p) * 6 * t;
+					if (t < 1 / 2) return q;
+					if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
 					return p;
 				}
 
 				var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
 				var p = 2 * l - q;
 
-				r = hue2rgb(p, q, h + 1/3);
+				r = hue2rgb(p, q, h + 1 / 3);
 				g = hue2rgb(p, q, h);
-				b = hue2rgb(p, q, h - 1/3);
+				b = hue2rgb(p, q, h - 1 / 3);
 			}
 
-			return [ r * 255, g * 255, b * 255 ];
+			return [r * 255, g * 255, b * 255];
 		}
 
 		// https://github.com/antimatter15/rgb-lab/blob/master/color.js
@@ -224,9 +246,9 @@
 			y = (r * 0.2126 + g * 0.7152 + b * 0.0722) / 1.00000;
 			z = (r * 0.0193 + g * 0.1192 + b * 0.9505) / 1.08883;
 
-			x = (x > 0.008856) ? Math.pow(x, 1/3) : (7.787 * x) + 16/116;
-			y = (y > 0.008856) ? Math.pow(y, 1/3) : (7.787 * y) + 16/116;
-			z = (z > 0.008856) ? Math.pow(z, 1/3) : (7.787 * z) + 16/116;
+			x = (x > 0.008856) ? Math.pow(x, 1 / 3) : (7.787 * x) + 16 / 116;
+			y = (y > 0.008856) ? Math.pow(y, 1 / 3) : (7.787 * y) + 16 / 116;
+			z = (z > 0.008856) ? Math.pow(z, 1 / 3) : (7.787 * z) + 16 / 116;
 
 			return [(116 * y) - 16, 500 * (x - y), 200 * (y - z)]
 		}
@@ -236,23 +258,23 @@
 				z = y - b / 200,
 				r, g, b;
 
-			x = 0.95047 * ((x * x * x > 0.008856) ? x * x * x : (x - 16/116) / 7.787);
-			y = 1.00000 * ((y * y * y > 0.008856) ? y * y * y : (y - 16/116) / 7.787);
-			z = 1.08883 * ((z * z * z > 0.008856) ? z * z * z : (z - 16/116) / 7.787);
+			x = 0.95047 * ((x * x * x > 0.008856) ? x * x * x : (x - 16 / 116) / 7.787);
+			y = 1.00000 * ((y * y * y > 0.008856) ? y * y * y : (y - 16 / 116) / 7.787);
+			z = 1.08883 * ((z * z * z > 0.008856) ? z * z * z : (z - 16 / 116) / 7.787);
 
-			r = x *	3.2406 + y * -1.5372 + z * -0.4986;
-			g = x * -0.9689 + y *	1.8758 + z *	0.0415;
-			b = x *	0.0557 + y * -0.2040 + z *	1.0570;
+			r = x * 3.2406 + y * -1.5372 + z * -0.4986;
+			g = x * -0.9689 + y * 1.8758 + z * 0.0415;
+			b = x * 0.0557 + y * -0.2040 + z * 1.0570;
 
-			r = (r > 0.0031308) ? (1.055 * Math.pow(r, 1/2.4) - 0.055) : 12.92 * r;
-			g = (g > 0.0031308) ? (1.055 * Math.pow(g, 1/2.4) - 0.055) : 12.92 * g;
-			b = (b > 0.0031308) ? (1.055 * Math.pow(b, 1/2.4) - 0.055) : 12.92 * b;
+			r = (r > 0.0031308) ? (1.055 * Math.pow(r, 1 / 2.4) - 0.055) : 12.92 * r;
+			g = (g > 0.0031308) ? (1.055 * Math.pow(g, 1 / 2.4) - 0.055) : 12.92 * g;
+			b = (b > 0.0031308) ? (1.055 * Math.pow(b, 1 / 2.4) - 0.055) : 12.92 * b;
 
 			return [Math.max(0, Math.min(1, r)) * 255,
-					Math.max(0, Math.min(1, g)) * 255,
-					Math.max(0, Math.min(1, b)) * 255]
+			Math.max(0, Math.min(1, g)) * 255,
+			Math.max(0, Math.min(1, b)) * 255]
 		}
-		function deltaE(labA, labB){
+		function deltaE(labA, labB) {
 			var deltaL = labA[0] - labB[0];
 			var deltaA = labA[1] - labB[1];
 			var deltaB = labA[2] - labB[2];
@@ -283,7 +305,7 @@
 			c1 = c1.hsl();
 			c2 = c2.hsl();
 			// calculate distance between two colours in hsl space
-			var deltaH = c1[0]/360 - c2[0]/360;
+			var deltaH = c1[0] / 360 - c2[0] / 360;
 			var deltaS = c1[1] - c2[1];
 			var deltaL = c1[2] - c2[2];
 			var d = Math.sqrt(Math.pow(deltaH, 2) + Math.pow(deltaS, 2) + Math.pow(deltaL, 2));
@@ -305,7 +327,7 @@
 		}
 
 
-		function getAverageColour(arr, f=sumRGB) {
+		function getAverageColour(arr, f = sumRGB) {
 			// accepts an array of colours, returns average colour (RGB)
 			avg = [];
 			for (var num = 0; num < 10; num++) { // for each number
@@ -314,7 +336,7 @@
 					avg[num] = // new average should be:
 						f(avg[num], arr[sub][num]); // old avg + this submission
 				}
-				avg[num].scale(1/arr.length); // divide by number of submissions
+				avg[num].scale(1 / arr.length); // divide by number of submissions
 			}
 			return avg;
 		}
@@ -322,37 +344,50 @@
 		// timestamp are precise only to the date, not hours or minutes.
 		raw_data = [
 			["Jess",
-				{"one": "F0C800","two": "94D400","three": "C20061","four": "804726","five": "F70000","six": "00F0C8","seven": "124F00","eight": "0045AD","nine": "8B00A1","zero": "E0E0E0", "timestamp": "1549756800000"},
-				{"one": "FFE600","two": "12A800","three": "EF00F7","four": "825A00","five": "E30000","six": "008CE6","seven": "C7E600","eight": "0062F0","nine": "8800FF","zero": "B6FAF7", "timestamp": "1572220800000"},
-				{"one": "FAD900","two": "199138","three": "FA7AAB","four": "5E4812","five": "EB2F3B","six": "CA00F5","seven": "0065D1","eight": "00C8D9","nine": "EB9500","zero": "DEFFFB", "timestamp": "1606263194000"},
-				{"one": "E9D900","two": "2714AC","three": "E48ADD","four": "6A4E2B","five": "DD0000","six": "00BFC4","seven": "ABE754","eight": "0074CE","nine": "FAFF6B","zero": "BAE4E8", "timestamp": "1675400000000"}
+				{ "one": "F0C800", "two": "94D400", "three": "C20061", "four": "804726", "five": "F70000", "six": "00F0C8", "seven": "124F00", "eight": "0045AD", "nine": "8B00A1", "zero": "E0E0E0", "timestamp": "1549756800000" },
+				{ "one": "FFE600", "two": "12A800", "three": "EF00F7", "four": "825A00", "five": "E30000", "six": "008CE6", "seven": "C7E600", "eight": "0062F0", "nine": "8800FF", "zero": "B6FAF7", "timestamp": "1572220800000" },
+				{ "one": "FAD900", "two": "199138", "three": "FA7AAB", "four": "5E4812", "five": "EB2F3B", "six": "CA00F5", "seven": "0065D1", "eight": "00C8D9", "nine": "EB9500", "zero": "DEFFFB", "timestamp": "1606263194000" },
+				{ "one": "E9D900", "two": "2714AC", "three": "E48ADD", "four": "6A4E2B", "five": "DD0000", "six": "00BFC4", "seven": "ABE754", "eight": "0074CE", "nine": "FAFF6B", "zero": "BAE4E8", "timestamp": "1675400000000" }
 			],
 			["Masa",
-				{"one": "004E8D","two": "7FC900","three": "F6EE00","four": "D91600","five": "BA0097","six": "70009B","seven": "00EEFF","eight": "002BAF","nine": "0098AC","zero": "00F1F1", "timestamp": "1549756800000"},
-				{"one": "0013AB","two": "5BFF00","three": "FFF900","four": "E03C00","five": "FFB9F3","six": "7C31D5","seven": "76CFDA","eight": "002F9B","nine": "5764EB","zero": "DDFCFA", "timestamp": "1572134400000"},
-				{"one": "0016ED","two": "1DED00","three": "FAF600","four": "F52600","five": "FF96E7","six": "5E00D9","seven": "00CDED","eight": "0016EB","nine": "7200FF","zero": "CEF3F5", "timestamp": "1596067200000"},
-				{"one": "0070BB","two": "30E346","three": "F1EB00","four": "FD2500","five": "EFBADA","six": "6E00D3","seven": "20A2DD","eight": "0046A2","nine": "3B0094","zero": "A7C4CC", "timestamp": "1605744000000"},
-				{"one": "9FD3F1","two": "30FF00","three": "FFF100","four": "F12800","five": "F6C3FC","six": "6600F2","seven": "8DF2F7","eight": "0044FE","nine": "5200E0","zero": "D6F2F2", "timestamp": "1675400000000"}
+				{ "one": "004E8D", "two": "7FC900", "three": "F6EE00", "four": "D91600", "five": "BA0097", "six": "70009B", "seven": "00EEFF", "eight": "002BAF", "nine": "0098AC", "zero": "00F1F1", "timestamp": "1549756800000" },
+				{ "one": "0013AB", "two": "5BFF00", "three": "FFF900", "four": "E03C00", "five": "FFB9F3", "six": "7C31D5", "seven": "76CFDA", "eight": "002F9B", "nine": "5764EB", "zero": "DDFCFA", "timestamp": "1572134400000" },
+				{ "one": "0016ED", "two": "1DED00", "three": "FAF600", "four": "F52600", "five": "FF96E7", "six": "5E00D9", "seven": "00CDED", "eight": "0016EB", "nine": "7200FF", "zero": "CEF3F5", "timestamp": "1596067200000" },
+				{ "one": "0070BB", "two": "30E346", "three": "F1EB00", "four": "FD2500", "five": "EFBADA", "six": "6E00D3", "seven": "20A2DD", "eight": "0046A2", "nine": "3B0094", "zero": "A7C4CC", "timestamp": "1605744000000" },
+				{ "one": "9FD3F1", "two": "30FF00", "three": "FFF100", "four": "F12800", "five": "F6C3FC", "six": "6600F2", "seven": "8DF2F7", "eight": "0044FE", "nine": "5200E0", "zero": "D6F2F2", "timestamp": "1675400000000" }
 			],
+			["Urška",
+				{ "one": "3C81A3", "two": "FF1212", "three": "FFEB3B", "four": "66BA1C", "five": "FFEE00", "six": "059E00", "seven": "E3A6F5", "eight": "004F12", "nine": "610070", "zero": "001CA8", "timestamp": "1724689688000" },
+				{ "one": "0055C8", "two": "EC0000", "three": "F9E238", "four": "006C23", "five": "D00000", "six": "722E00", "seven": "FFDB71", "eight": "C80000", "nine": "9D00AA", "zero": "436290", "timestamp": "1725985688000" },
+				{ "one": "FF0404", "two": "000AAF", "three": "DFF300", "four": "DA0000", "five": "9D00B6", "six": "005109", "seven": "5400A5", "eight": "6BC300", "nine": "3D0062", "zero": "0079EF", "timestamp": "1728820679000" }
+			],
+			["Veronika",
+				{ "one": "0B0004", "two": "ECCE00", "three": "F000B8", "four": "076700", "five": "00D5F8", "six": "E40000", "seven": "603400", "eight": "02008E", "nine": "580064", "zero": "FFFFFF", "timestamp": "1724689688000" },
+				{ "one": "FFFFFF", "two": "F4FF00", "three": "E400E0", "four": "2D9000", "five": "00BCE9", "six": "EF0016", "seven": "7E5A00", "eight": "0E0074", "nine": "6B008E", "zero": "230014", "timestamp": "1725985688000" }
+			],
+			["Mojca",
+				{ "one": "FFFFFF", "two": "FFF400", "three": "00C7F5", "four": "E39800", "five": "0BEC00", "six": "F00000", "seven": "0031AA", "eight": "000000", "nine": "905500", "zero": "FFFFFF", "timestamp": "1605889688000" },
+				{ "one": "FFFFFF", "two": "E7FB00", "three": "00EC04", "four": "00BFE2", "five": "F10000", "six": "F40000", "seven": "9E00CB", "eight": "842A00", "nine": "FFC100", "zero": "00E7FF", "timestamp": "1725985688000" }
+			], // Mojca Bozic (of lemon)
 			["Domen",
-				{"one": "000000","two": "00095C","three": "4B7000","four": "FA0000","five": "F5ED00","six": "06A600","seven": "E37900","eight": "00591E","nine": "0000D6","zero": "00F0D8", "timestamp": "1550242713000"},
-				{"one": "000000","two": "0E0073","three": "006E05","four": "E70E00","five": "BF8300","six": "005914","seven": "F0FF00","eight": "6A000B","nine": "001AFF","zero": "FFFFFF", "timestamp": "1572447513000"}
+				{ "one": "000000", "two": "00095C", "three": "4B7000", "four": "FA0000", "five": "F5ED00", "six": "06A600", "seven": "E37900", "eight": "00591E", "nine": "0000D6", "zero": "00F0D8", "timestamp": "1550242713000" },
+				{ "one": "000000", "two": "0E0073", "three": "006E05", "four": "E70E00", "five": "BF8300", "six": "005914", "seven": "F0FF00", "eight": "6A000B", "nine": "001AFF", "zero": "FFFFFF", "timestamp": "1572447513000" }
 			],
 			["Teja",
-				{"one": "26BD00","two": "D98200","three": "FCEB79","four": "FFE2D6","five": "F74A00","six": "EB3D88","seven": "A2FF00","eight": "0000FF","nine": "6600FF","zero": "FFFFFF", "timestamp": "1551797913000"},
-				{"one": "2DE000","two": "00D4DB","three": "DE5900","four": "C22700","five": "FF0A0A","six": "FFBDBD","seven": "2CC937","eight": "6000DE","nine": "D65600","zero": "FFFFFF", "timestamp": "1572620313000"},
-				{"one": "A2FCCF","two": "F50021","three": "FFF824","four": "8800F0","five": "28ED00","six": "FA00E9","seven": "E89300","eight": "4900F5","nine": "005E16","zero": "FFFFFF", "timestamp": "1675400000000"}
+				{ "one": "26BD00", "two": "D98200", "three": "FCEB79", "four": "FFE2D6", "five": "F74A00", "six": "EB3D88", "seven": "A2FF00", "eight": "0000FF", "nine": "6600FF", "zero": "FFFFFF", "timestamp": "1551797913000" },
+				{ "one": "2DE000", "two": "00D4DB", "three": "DE5900", "four": "C22700", "five": "FF0A0A", "six": "FFBDBD", "seven": "2CC937", "eight": "6000DE", "nine": "D65600", "zero": "FFFFFF", "timestamp": "1572620313000" },
+				{ "one": "A2FCCF", "two": "F50021", "three": "FFF824", "four": "8800F0", "five": "28ED00", "six": "FA00E9", "seven": "E89300", "eight": "4900F5", "nine": "005E16", "zero": "FFFFFF", "timestamp": "1675400000000" }
 			],
 			["Timotej",
-				{"one": "00B00C","two": "0B00C2","three": "D8DB00","four": "F50006","five": "00E0E8","six": "0D0200","seven": "009168","eight": "A16C00","nine": "08F200","zero": "650066", "timestamp": "1579273113000"},
-				{"one": "00E0F2","two": "00F534","three": "F2D600","four": "C92D00","five": "1B00AB","six": "D800D9","seven": "7A5600","eight": "003C57","nine": "E000DD","zero": "0A0500", "timestamp": "1605797913000"},
-				{"one": "780656","two": "8318F2","three": "FF9D00","four": "EBE628","five": "009144","six": "009690","seven": "00089C","eight": "1C6B00","nine": "CF4271","zero": "C20042", "timestamp": "1675400000000"}
+				{ "one": "00B00C", "two": "0B00C2", "three": "D8DB00", "four": "F50006", "five": "00E0E8", "six": "0D0200", "seven": "009168", "eight": "A16C00", "nine": "08F200", "zero": "650066", "timestamp": "1579273113000" },
+				{ "one": "00E0F2", "two": "00F534", "three": "F2D600", "four": "C92D00", "five": "1B00AB", "six": "D800D9", "seven": "7A5600", "eight": "003C57", "nine": "E000DD", "zero": "0A0500", "timestamp": "1605797913000" },
+				{ "one": "780656", "two": "8318F2", "three": "FF9D00", "four": "EBE628", "five": "009144", "six": "009690", "seven": "00089C", "eight": "1C6B00", "nine": "CF4271", "zero": "C20042", "timestamp": "1675400000000" }
 			],
 			["Nina",
-				{"one": "AFA500","two": "006934","three": "23009E","four": "A30016","five": "008AB2","six": "523F00","seven": "8F007F","eight": "FF2626","nine": "00DACE","zero": "726F00"},
+				{ "one": "AFA500", "two": "006934", "three": "23009E", "four": "A30016", "five": "008AB2", "six": "523F00", "seven": "8F007F", "eight": "FF2626", "nine": "00DACE", "zero": "726F00" },
 				// Nina refuses to acknowledge the following submission as hers, but by all data it should belong to her.
-				{"one": "1FBA00","two": "B10091","three": "826800","four": "1C1407","five": "00B5C0","six": "5D5086","seven": "D86D94","eight": "68001C","nine": "575556","zero": "00028B"},
-				{"one": "D800C7","two": "514C52","three": "E03E00","four": "51A8AB","five": "7BF5FF","six": "58A85E","seven": "D9F100","eight": "FF6868","nine": "7D7D7D","zero": "000000"}
+				{ "one": "1FBA00", "two": "B10091", "three": "826800", "four": "1C1407", "five": "00B5C0", "six": "5D5086", "seven": "D86D94", "eight": "68001C", "nine": "575556", "zero": "00028B" },
+				{ "one": "D800C7", "two": "514C52", "three": "E03E00", "four": "51A8AB", "five": "7BF5FF", "six": "58A85E", "seven": "D9F100", "eight": "FF6868", "nine": "7D7D7D", "zero": "000000" }
 			],
 			//["Lucija Tekavc",
 			//	{"one": "CBBF00","two": "8B008E","three": "03BA00","four": "E01B00","five": "008EB7","six": "E88B00","seven": "EA2BE3","eight": "32E000","nine": "17006D","zero": "FFFFFF"}
@@ -364,15 +399,15 @@
 			//	{"one": "C21300","two": "007F15","three": "020005","four": "9026B1","five": "E7D927","six": "503800","seven": "001E52","eight": "45DCD3","nine": "690000","zero": "EEB957"},
 			//],
 			["Matej",
-				{"one": "000000","two": "D4DB00","three": "004FD9","four": "DE6000","five": "0000D1","six": "7600BA","seven": "D42300","eight": "077000","nine": "C900C3","zero": "FFFFFF"},
-				{"one": "A5BB00","two": "FBFF00","three": "00960A","four": "00889F","five": "D6A200","six": "C00043","seven": "000000","eight": "FEFEFE","nine": "E43300","zero": "BA0083"}
+				{ "one": "000000", "two": "D4DB00", "three": "004FD9", "four": "DE6000", "five": "0000D1", "six": "7600BA", "seven": "D42300", "eight": "077000", "nine": "C900C3", "zero": "FFFFFF" },
+				{ "one": "A5BB00", "two": "FBFF00", "three": "00960A", "four": "00889F", "five": "D6A200", "six": "C00043", "seven": "000000", "eight": "FEFEFE", "nine": "E43300", "zero": "BA0083" }
 			],
 			//["Ulan Valant",
 			//	{"one": "FFFFFF","two": "33E800","three": "D39400","four": "8B4800","five": "003145","six": "009DBB","seven": "786F6E","eight": "D14C00","nine": "000000","zero": "FFFFFF"},
 			//],
 			["Zala", // Zala Lotric
-				{"one": "00D90E","two": "F73100","three": "0083E8","four": "03000A","five": "FF00EE","six": "046E00","seven": "00E3EB","eight": "911D00","nine": "F2DA00","zero": "FFFFFF"},
-				{"one": "FFFF00","two": "FA1100","three": "00ADD9","four": "1900BD","five": "005205","six": "BD00AA","seven": "00F508","eight": "000000","nine": "A37D00","zero": "FFFFFF"}
+				{ "one": "00D90E", "two": "F73100", "three": "0083E8", "four": "03000A", "five": "FF00EE", "six": "046E00", "seven": "00E3EB", "eight": "911D00", "nine": "F2DA00", "zero": "FFFFFF" },
+				{ "one": "FFFF00", "two": "FA1100", "three": "00ADD9", "four": "1900BD", "five": "005205", "six": "BD00AA", "seven": "00F508", "eight": "000000", "nine": "A37D00", "zero": "FFFFFF" }
 			],
 			//["Rakar", {"one": "1D001D","two": "00B6DF","three": "672C00","four": "E7E100","five": "0C0070","six": "00FF2B","seven": "F0EC00","eight": "D90000","nine": "CF0000","zero": "FFFFFF"}],
 			// ["Jonas",
@@ -383,29 +418,29 @@
 			//["Zunti", {"one": "FCCA00","two": "F29900","three": "DE5100","four": "E33D00","five": "F70010","six": "FF00CC","seven": "9000FF","eight": "2A00FA","nine": "00DDFF","zero": "00FF11"}],
 			//["Godesa", {"one": "0600B7","two": "FE9400","three": "081B00","four": "FFF600","five": "FF0000","six": "00B3FF","seven": "228900","eight": "00D4F4","nine": "9300D3","zero": "FFFFFF"}],
 			["Ana", // Ana Novak
-				{"one": "C60023","two": "E9C600","three": "FFFFFF","four": "43005A","five": "FFFFFF","six": "FFFFFF","seven": "FFFFFF","eight": "00403E","nine": "FFFFFF","zero": "FFFFFF"},
-				{"one": "FFFFFF","two": "FFFFFF","three": "FFFFFF","four": "FFFFFF","five": "FFFFFF","six": "FFFFFF","seven": "FFFFFF","eight": "FFFFFF","nine": "006769","zero": "FFFFFF"}
+				{ "one": "C60023", "two": "E9C600", "three": "FFFFFF", "four": "43005A", "five": "FFFFFF", "six": "FFFFFF", "seven": "FFFFFF", "eight": "00403E", "nine": "FFFFFF", "zero": "FFFFFF" },
+				{ "one": "FFFFFF", "two": "FFFFFF", "three": "FFFFFF", "four": "FFFFFF", "five": "FFFFFF", "six": "FFFFFF", "seven": "FFFFFF", "eight": "FFFFFF", "nine": "006769", "zero": "FFFFFF" }
 			],
 			//["Luka z", {"one": "750000","two": "000153","three": "FFFFFF","four": "0002C1","five": "FFFFFF","six": "FFFFFF","seven": "FFFFFF","eight": "005311","nine": "FFFFFF","zero": "FFFFFF"}],
 			//["Anja who?", {"one": "FFFFFF","two": "FFFFFF","three": "FFFFFF","four": "FFFFFF","five": "FFFFFF","six": "FFFFFF","seven": "FFFFFF","eight": "1D9C00","nine": "FFFFFF","zero": "FFFFFF"}],
 			//["Eva Lea Bokal", {"one": "FDED00","two": "970057","three": "008BD5","four": "E10000","five": "25E000","six": "08008B","seven": "E79F1B","eight": "007E97","nine": "471300","zero": "F0F0F0"}],
 			//[":four_leaf_clover:", {"one": "00AC35","two": "B41000","three": "12C900","four": "F8FF00","five": "0081C2","six": "7F0052","seven": "00D1B8","eight": "B0000C","nine": "009540","zero": "000000"}],
 			["Tjasa", // Tjasa Kolcars (knows Timo)
-				{"one": "D9BC00","two": "D400F5","three": "052900","four": "E82E00","five": "403100","six": "AB7D00","seven": "A3CC00","eight": "004E66","nine": "4C0054","zero": "00DED6"},
-				{"one": "CFC800","two": "FF0000","three": "2ADF00","four": "000EDA","five": "B50000","six": "00F1E7","seven": "004958","eight": "E700D8","nine": "00004D","zero": "FFFFFF"}
+				{ "one": "D9BC00", "two": "D400F5", "three": "052900", "four": "E82E00", "five": "403100", "six": "AB7D00", "seven": "A3CC00", "eight": "004E66", "nine": "4C0054", "zero": "00DED6" },
+				{ "one": "CFC800", "two": "FF0000", "three": "2ADF00", "four": "000EDA", "five": "B50000", "six": "00F1E7", "seven": "004958", "eight": "E700D8", "nine": "00004D", "zero": "FFFFFF" }
 			],
 			//["Lana", {"one": "41F500","two": "FFB3B3","three": "00D2D9","four": "C92F00","five": "DCF500","six": "006113","seven": "0000E3","eight": "4F0032","nine": "FA8E00","zero": "FFFFFF"}],
 			["Gal", // Gal Irt
-				{"one": "0E8D00","two": "4400AE","three": "954200","four": "E40007","five": "D0006F","six": "E500E0","seven": "133A00","eight": "008CDD","nine": "002B82","zero": "998D00"},
-				{"one": "FF0000","two": "00A6E3","three": "000901","four": "6900F3","five": "00F20B","six": "FFEB00","seven": "8700EA","eight": "BC1900","nine": "12001F","zero": "778700"}
+				{ "one": "0E8D00", "two": "4400AE", "three": "954200", "four": "E40007", "five": "D0006F", "six": "E500E0", "seven": "133A00", "eight": "008CDD", "nine": "002B82", "zero": "998D00" },
+				{ "one": "FF0000", "two": "00A6E3", "three": "000901", "four": "6900F3", "five": "00F20B", "six": "FFEB00", "seven": "8700EA", "eight": "BC1900", "nine": "12001F", "zero": "778700" }
 			],
 			//  V, Z
 			//["Lili", {"one": "EDC700","two": "008425","three": "2C00C9","four": "B20079","five": "00B2CB","six": "AF1700","seven": "E500AF","eight": "493900","nine": "120035","zero": "FFFFFF"}],
 			//["Tinkara", {"one": "000000","two": "FC2A00","three": "060061","four": "FFDD00","five": "004509","six": "F76300","seven": "28F000","eight": "670073","nine": "782800","zero": "FFFFFF"}],
 			//["Levstek", {"one": "5BA300","two": "E09712","three": "00B2C9","four": "0033D1","five": "CC0067","six": "FF0A0A","seven": "6F00B8","eight": "B1C700","nine": "EBDE00","zero": "D99C50"}],
 			//["Jakob Drusany", {"one": "19FA00","two": "0600FF","three": "FFFA00","four": "A700F7","five": "00F7FF","six": "FF0000","seven": "FF8300","eight": "00ACB3","nine": "007500","zero": "000000"}],
-			//["Mojca", {"one": "FFFFFF","two": "FFF400","three": "00C7F5","four": "E39800","five": "0BEC00","six": "F00000","seven": "0031AA","eight": "000000","nine": "905500","zero": "FFFFFF"}], // Mojca Bozic (of lemon)
 			//["Luka Urbanc", {"one": "FFFFFF","two": "1DC900","three": "730071","four": "B52B00","five": "000FD4","six": "00A309","seven": "E6AB00","eight": "6B0060","nine": "1C0B00","zero": "0027B5"}],
+			//["Mej Kozorog", {"one": "C0D794","two": "70883F","three": "B48D5E","four": "9A473D","five": "BBB932","six": "95A26A","seven": "3C8650","eight": "2F3565","nine": "795440","zero": "B73600", "timestamp": "1725985688000"}],
 		];
 
 		// format raw data
@@ -416,12 +451,12 @@
 		for (var i = 0; i < raw_data.length; i++) {
 			var name = raw_data[i][0];
 			data[name] = [];
-			for (var submission = 0; submission < raw_data[i].length-1; submission++) { // for each submission
+			for (var submission = 0; submission < raw_data[i].length - 1; submission++) { // for each submission
 				data[name][submission] = [];
 				for (var num = 0; num < 10; num++) {
-					data[name][submission][num] = new Colour(raw_data[i][submission+1][int_to_eng(num)]);
-					if (raw_data[i][submission+1]["timestamp"])
-						data[name][submission]["timestamp"] = raw_data[i][submission+1]["timestamp"];
+					data[name][submission][num] = new Colour(raw_data[i][submission + 1][int_to_eng(num)]);
+					if (raw_data[i][submission + 1]["timestamp"])
+						data[name][submission]["timestamp"] = raw_data[i][submission + 1]["timestamp"];
 					else
 						data[name][submission]["timestamp"] = 0;
 				}
@@ -511,31 +546,31 @@
 
 		// add data to screen
 		for (person in data) {
-			console.log("printing for "+person)
+			console.log("printing for " + person)
 			console.log(data[person])
 			var details = document.createElement("details");
 			var summary = document.createElement("summary");
-			summary.appendChild(createSet(data[person]["average"], "<p class='title'>"+person+"</p>"));
+			summary.appendChild(createSet(data[person]["average"], "<p class='title'>" + person + "</p>"));
 			details.appendChild(summary);
 			for (var submission = 0; submission < data[person].length; submission++) {
 				console.log(data[person][submission])
 				if (data[person][submission]["timestamp"] != "0") {
 					ts = new Date(parseInt(data[person][submission]["timestamp"]));
-					subtitle = ts.getDate()+". "+(ts.getMonth()+1)+". "+ts.getFullYear();
+					subtitle = ts.getDate() + ". " + (ts.getMonth() + 1) + ". " + ts.getFullYear();
 				}
 				else {
-					subtitle = "Submission "+submission;
+					subtitle = "Submission " + submission;
 				}
 				details.appendChild(createSet(data[person][submission],
-						"<p class='subtitle'>"+subtitle+"</p>"));
+					"<p class='subtitle'>" + subtitle + "</p>"));
 			}
 			if (data[person].length > 1) {
 				details.appendChild(
 					createSet(
 						data[person]["variances"]["average"],
-						"<p class='subtitle'>Consistency: "+data[person]["score"]+"/10</p>",
+						"<p class='subtitle'>Consistency: " + data[person]["score"] + "/10</p>",
 						"consistencySet",
-						data[person]["consistencies"].map(x=>x?"consistent":"inconsistent")
+						data[person]["consistencies"].map(x => x ? "consistent" : "inconsistent")
 					)
 				);
 			}
@@ -545,4 +580,5 @@
 
 	</script>
 </body>
+
 </html>
